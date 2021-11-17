@@ -21,7 +21,7 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug executable 'huff'",
+      "name": "Debug encoding example",
       "cargo": {
         "args": ["build", "--bin=huff", "--package=huff"],
         "filter": {
@@ -29,7 +29,21 @@
           "kind": "bin"
         }
       },
-      "args": ["test.txt"],
+      "args": ["encode", "examples/example.txt"],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug decoding example",
+      "cargo": {
+        "args": ["build", "--bin=huff", "--package=huff"],
+        "filter": {
+          "name": "huff",
+          "kind": "bin"
+        }
+      },
+      "args": ["decode", "out.bin"],
       "cwd": "${workspaceFolder}"
     },
     {
