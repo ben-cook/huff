@@ -6,7 +6,7 @@ pub fn generate_tree(map: &HashMap<char, i32>) -> Node<(i32, Option<char>)> {
     let mut heap = BinaryHeap::new();
 
     // Create the nodes of the tree
-    for (k, v) in map.into_iter() {
+    for (k, v) in map.iter() {
         let new_node = Node::<(i32, Option<char>)> {
             left: None,
             right: None,
@@ -33,8 +33,7 @@ pub fn generate_tree(map: &HashMap<char, i32>) -> Node<(i32, Option<char>)> {
         heap.push(combined_node);
     }
 
-    let root_node = heap.pop().expect("Heap is empty after algorithm ran");
-    root_node
+    heap.pop().expect("Heap is empty after algorithm ran")
 }
 
 pub fn save_tree(char_map: HashMap<char, i32>) -> Vec<u8> {
@@ -62,13 +61,13 @@ fn recursive_generate_codes(
 ) {
     if let Some(node) = &root.left {
         current_array.push(0);
-        recursive_generate_codes(&node, current_array, map);
+        recursive_generate_codes(node, current_array, map);
         current_array.pop();
     }
 
     if let Some(node) = &root.right {
         current_array.push(1);
-        recursive_generate_codes(&node, current_array, map);
+        recursive_generate_codes(node, current_array, map);
         current_array.pop();
     }
 

@@ -21,12 +21,12 @@ impl str::FromStr for Mode {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "encode" => return Ok(Mode::Encode),
-            "decode" => return Ok(Mode::Decode),
+            "decode" => Ok(Mode::Decode),
+            "encode" => Ok(Mode::Encode),
             _ => {
                 return Err(format!("Could not parse mode '{}'", s));
             }
-        };
+        }
     }
 }
 
@@ -78,15 +78,12 @@ fn encode(args: Cli) -> Result<()> {
     debug!("encoding size: {}", size);
     encoding_buf.resize(size, false);
 
-    let mut index: usize = 0;
-
-    for c in encoding.chars() {
+    for (index, c) in encoding.chars().enumerate() {
         if c == '1' {
             encoding_buf.set(index, true);
         } else if c == '0' {
             encoding_buf.set(index, false);
         }
-        index += 1;
     }
 
     // debug!("encoding_buf: {:?}", encoding_buf);
@@ -179,7 +176,7 @@ fn decode(args: Cli) -> Result<()> {
     Ok(())
 }
 
-fn get_character_counts(string: &Vec<char>) -> HashMap<char, i32> {
+fn get_character_counts(string: &[char]) -> HashMap<char, i32> {
     let mut character_counts: HashMap<char, i32> = HashMap::new();
 
     for char in string {
@@ -204,14 +201,12 @@ fn decode_message(
                 debug!("{} {}", *current_node, if bit { "1" } else { "0" });
             }
 
-            if bit == false {
+            if !bit {
                 if let Some(left_node) = &current_node.left {
-                    current_node = &left_node;
+                    current_node = left_node;
                 }
-            } else {
-                if let Some(right_node) = &current_node.right {
-                    current_node = &right_node;
-                }
+            } else if let Some(right_node) = &current_node.right {
+                current_node = right_node;
             }
 
             if let Some(char) = current_node.value.1 {
@@ -229,7 +224,7 @@ fn decode_message(
 }
 
 fn u8_to_u32(array: &[u8; 4]) -> u32 {
-    ((array[0] as u32) << 0)
+    (array[0] as u32)
         + ((array[1] as u32) << 8)
         + ((array[2] as u32) << 16)
         + ((array[3] as u32) << 24)
