@@ -1,0 +1,12 @@
+[package]
+name = "huff-cli"
+version = "0.1.0"
+edition = "2021"
+authors = [ "Ben Cook" ]
+
+[dependencies]
+clap = { version = "3.2.12", features = ["derive"] }
+anyhow = "1.0.45"
+log = "0.4.14"
+env_logger = "0.9.0"
+huff = { path = "../huff" }

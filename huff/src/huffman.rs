@@ -78,7 +78,7 @@ fn recursive_generate_codes(
             current_array
                 .iter()
                 .map(|s| s.to_string())
-                .reduce(|cur, next| cur + &next)
+                .reduce(|cur, next| format!("{}{}", cur, next))
                 .unwrap(),
         );
     }
