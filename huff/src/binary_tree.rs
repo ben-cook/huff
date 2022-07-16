@@ -8,9 +8,11 @@ pub struct Node<V: PartialOrd + Debug> {
     pub right: Option<Box<Node<V>>>,
 }
 
-impl<V: PartialOrd + Debug> Display for Node<V> {
+impl<V> Display for Node<V>
+where
+    V: Debug + PartialOrd + Display,
+{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self.value)
+        write!(f, "{}", self.value)
     }
 }
-

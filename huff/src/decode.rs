@@ -91,7 +91,7 @@ fn decode_message(
     for bit in encoded_msg.into_iter() {
         if current_length < encoding_length {
             if current_length < 20 {
-                debug!("{} {}", *current_node, if bit { "1" } else { "0" });
+                debug!("{:?} {:?}", *current_node, if bit { "1" } else { "0" });
             }
 
             if !bit {

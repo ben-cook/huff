@@ -1,7 +1,5 @@
 use std::collections::HashMap;
 
-
-
 use crate::huffman;
 use anyhow::Result;
 use bitvec::order::Msb0;
@@ -19,7 +17,7 @@ fn char_occurences_in_string(string: &str) -> HashMap<char, i32> {
 }
 
 pub fn encode(input: &str) -> Result<Vec<u8>> {
-    let character_counts = char_occurences_in_string(&input);
+    let character_counts = char_occurences_in_string(input);
     debug!("{:?}", character_counts);
 
     let huffman_graph = huffman::generate_tree(&character_counts);
