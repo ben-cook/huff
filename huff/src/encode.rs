@@ -4,9 +4,8 @@ use crate::huffman;
 use anyhow::Result;
 use bitvec::order::Msb0;
 use bitvec::prelude::BitVec;
-use log::debug;
 
-fn char_occurences_in_string(string: &str) -> HashMap<char, i32> {
+pub fn char_occurences_in_string(string: &str) -> HashMap<char, i32> {
     let mut character_counts = HashMap::new();
 
     for char in string.chars() {
@@ -18,13 +17,13 @@ fn char_occurences_in_string(string: &str) -> HashMap<char, i32> {
 
 pub fn encode(input: &str) -> Result<Vec<u8>> {
     let character_counts = char_occurences_in_string(input);
-    debug!("{:?}", character_counts);
+    dbg!(&character_counts);
 
     let huffman_graph = huffman::generate_tree(&character_counts);
 
     let character_codes = huffman::generate_codes(&huffman_graph);
 
-    debug!("codes: {:?}", character_codes);
+    dbg!(&character_codes);
 
     let mut encoding = String::new();
     for char in input.chars() {
@@ -38,7 +37,7 @@ pub fn encode(input: &str) -> Result<Vec<u8>> {
 
     let mut encoding_buf: BitVec<Msb0, u8> = BitVec::new();
     let size: usize = encoding.len();
-    debug!("encoding size: {}", size);
+    // debug!("encoding size: {}", size);
     encoding_buf.resize(size, false);
 
     for (index, c) in encoding.chars().enumerate() {
@@ -55,7 +54,7 @@ pub fn encode(input: &str) -> Result<Vec<u8>> {
     io_buf.extend(vec![0u8]);
     // add a buffer of length of encoding
     let encoding_len = encoding_buf.len() as u32;
-    let encoding_len_buf: Vec<u8> = Vec::from(encoding_len.to_le_bytes());
+    let encoding_len_buf: Vec<u8> = Vec::from(encoding_len.to_be_bytes());
     io_buf.extend(encoding_len_buf);
     // add the actual encoding
     io_buf.extend(encoding_buf.into_vec());

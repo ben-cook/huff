@@ -83,3 +83,107 @@ fn recursive_generate_codes(
         );
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+
+    // #[test]
+    // fn sanity_check() {
+    //     let mut map1 = HashMap::new();
+    //     let mut map2 = HashMap::new();
+    //
+    //     map1.insert('t', 188);
+    //     map1.insert('r', 110);
+    //     map1.insert('g', 30);
+    //     map1.insert('c', 94);
+    //     map1.insert('p', 43);
+    //     map1.insert(',', 40);
+    //     map1.insert('Q', 1);
+    //     map1.insert('i', 230);
+    //     map1.insert('d', 59);
+    //     map1.insert('S', 3);
+    //     map1.insert('L', 3);
+    //     map1.insert('u', 185);
+    //     map1.insert('o', 90);
+    //     map1.insert('q', 29);
+    //     map1.insert('b', 24);
+    //     map1.insert('F', 2);
+    //     map1.insert('x', 3);
+    //     map1.insert('e', 262);
+    //     map1.insert('a', 177);
+    //     map1.insert('N', 7);
+    //     map1.insert('V', 4);
+    //     map1.insert('n', 146);
+    //     map1.insert('I', 4);
+    //     map1.insert(' ', 385);
+    //     map1.insert('C', 3);
+    //     map1.insert('v', 27);
+    //     map1.insert('.', 54);
+    //     map1.insert('m', 104);
+    //     map1.insert('U', 1);
+    //     map1.insert('h', 11);
+    //     map1.insert('E', 3);
+    //     map1.insert('P', 8);
+    //     map1.insert('s', 181);
+    //     map1.insert('M', 8);
+    //     map1.insert('\n', 8);
+    //     map1.insert('D', 5);
+    //     map1.insert('A', 2);
+    //     map1.insert('f', 18);
+    //     map1.insert('j', 1);
+    //     map1.insert('l', 122);
+    //
+    //     map2.insert('x', 3);
+    //     map2.insert('a', 177);
+    //     map2.insert('f', 18);
+    //     map2.insert('V', 4);
+    //     map2.insert('s', 181);
+    //     map2.insert('v', 27);
+    //     map2.insert('.', 54);
+    //     map2.insert('c', 94);
+    //     map2.insert('C', 3);
+    //     map2.insert('i', 230);
+    //     map2.insert('h', 11);
+    //     map2.insert('E', 3);
+    //     map2.insert('o', 90);
+    //     map2.insert('l', 122);
+    //     map2.insert('S', 3);
+    //     map2.insert('p', 43);
+    //     map2.insert('P', 8);
+    //     map2.insert('n', 146);
+    //     map2.insert('A', 2);
+    //     map2.insert('g', 30);
+    //     map2.insert('D', 5);
+    //     map2.insert('\n', 8);
+    //     map2.insert('Q', 1);
+    //     map2.insert('q', 29);
+    //     map2.insert('N', 7);
+    //     map2.insert('t', 188);
+    //     map2.insert('e', 6);
+    //     map2.insert(' ', 129);
+    //     map2.insert('m', 104);
+    //     map2.insert('M', 8);
+    //     map2.insert('b', 24);
+    //     map2.insert('F', 2);
+    //     map2.insert('I', 4);
+    //     map2.insert(',', 40);
+    //     map2.insert('L', 3);
+    //     map2.insert('j', 1);
+    //     map2.insert('u', 185);
+    //     map2.insert('d', 59);
+    //     map2.insert('U', 1);
+    //     map2.insert('r', 110);
+    //
+    //     assert_eq!(map1, map2);
+    //
+    //     let graph1 = generate_tree(&map1);
+    //     let graph2 = generate_tree(&map2);
+    //     assert_eq!(graph1, graph2);
+    //
+    //     let character_codes1 = generate_codes(&graph1);
+    //     let character_codes2 = generate_codes(&graph2);
+    //     assert_eq!(character_codes1, character_codes2);
+    // }
+}

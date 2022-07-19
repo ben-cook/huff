@@ -1,12 +1,12 @@
 use std::fs::{read_to_string, File};
-use std::io::Write;
+use std::io::{BufReader, Read, Write};
 use std::path::PathBuf;
 
 use anyhow::Result;
 use clap::{ArgEnum, Parser};
 
-use huff::decode::decode;
-use huff::encode::encode;
+use huff::decode;
+use huff::encode;
 
 #[derive(PartialEq, Clone, ArgEnum)]
 pub enum Mode {
@@ -32,8 +32,11 @@ pub fn run(args: Args) -> Result<()> {
                 .map_err(anyhow::Error::from)
         }
         Mode::Decode => {
-            let input = read_to_string(args.input_path)?;
-            let decoded_message = decode(&input.as_bytes())?;
+            let file = File::open(args.input_path)?;
+            let mut buf_reader = BufReader::new(file);
+            let mut contents = Vec::new();
+            buf_reader.read_to_end(&mut contents)?;
+            let decoded_message = decode(&contents)?;
             println!("{}", decoded_message);
             Ok(())
         }

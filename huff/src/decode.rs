@@ -6,65 +6,36 @@ use crate::huffman;
 use anyhow::Result;
 use bitvec::order::Msb0;
 use bitvec::prelude::BitVec;
-use bitvec::view::BitView;
 use log::debug;
 
-pub fn decode(input: &[u8]) -> Result<String> {
+/// Decodes (ascii) character counts into a Map<character, count>.
+/// The input is a u8 slice that alternates between the ascii character code
+/// and the count of that character
+fn decode_character_counts(input: &[u8]) -> HashMap<char, i32> {
     let mut character_counts: HashMap<char, i32> = HashMap::new();
-    let mut encoded_bits: BitVec<Msb0, u8> = BitVec::new();
 
-    let mut read_chars = true;
-    let mut reading_char = true;
-    let mut last_char = String::new();
-    let mut read_length = false;
-
-    let mut encoding_lengths: [u8; 4] = [0; 4];
-    let mut encoding_length_index: u32 = 0;
-
-    for &byte in input {
-        if read_length {
-            encoding_lengths[encoding_length_index as usize] = byte;
-            encoding_length_index += 1;
-            if encoding_length_index == 4 {
-                read_length = false;
-                debug!("encoding lengths: {:?}", encoding_lengths);
-            }
-            continue;
-        }
-
-        if read_chars {
-            if reading_char {
-                if byte == 0u8 {
-                    read_chars = false;
-                    read_length = true;
-                    continue;
-                } else {
-                    let byte_vec: Vec<u8> = Vec::from([byte]);
-                    last_char = String::from_utf8(byte_vec).expect("couldn't parse character");
-                    reading_char = false;
-                }
-            } else {
-                let char_count = byte as i32;
-                character_counts.insert(
-                    last_char
-                        .chars()
-                        .into_iter()
-                        .next()
-                        .expect("Couldn't get char from string"),
-                    char_count,
-                );
-                reading_char = true;
-            }
-        } else {
-            let mut bits: BitVec<Msb0, u8> = byte.view_bits::<Msb0>().to_bitvec();
-
-            encoded_bits.append(&mut bits);
-        }
+    for chunk in input.chunks_exact(2) {
+        let character = chunk[0].into();
+        let count = chunk[1].into();
+        character_counts.insert(character, count);
     }
 
-    let encoding_length = u8_to_u32(&encoding_lengths);
-    debug!("encoding length: {}", encoding_length);
+    character_counts
+}
+
+pub fn decode(input: &[u8]) -> Result<String> {
+    let split_index = input.iter().position(|&byte| byte == 0x00).unwrap();
+    let (character_slice, message_slice) = input.split_at(split_index);
+    let message_slice = &message_slice[1..];
+
+    let character_counts = decode_character_counts(&character_slice);
+    dbg!(&character_counts);
     debug!("{:?}", character_counts);
+
+    let (length, message) = message_slice.split_at(std::mem::size_of::<u32>());
+    let message_len = u32::from_be_bytes(length.try_into().unwrap());
+    let message: BitVec<Msb0, u8> = BitVec::from_slice(message)?;
+
     // debug!("{:?}", encoded_bits);
 
     let huffman_graph = huffman::generate_tree(&character_counts);
@@ -72,9 +43,9 @@ pub fn decode(input: &[u8]) -> Result<String> {
     // The decoding algorithm is somtimes generating different character codes than the encoding algorithm,
     // leading to incorrect decoding.
     let character_codes = huffman::generate_codes(&huffman_graph);
-    debug!("{:?}", character_codes);
+    dbg!(character_codes);
 
-    let decoded_message = decode_message(encoded_bits, huffman_graph, encoding_length);
+    let decoded_message = decode_message(message, huffman_graph, message_len);
 
     Ok(decoded_message)
 }
@@ -91,7 +62,7 @@ fn decode_message(
     for bit in encoded_msg.into_iter() {
         if current_length < encoding_length {
             if current_length < 20 {
-                debug!("{:?} {:?}", *current_node, if bit { "1" } else { "0" });
+                // debug!("{:?} {:?}", *current_node, if bit { "1" } else { "0" });
             }
 
             if !bit {
@@ -116,9 +87,44 @@ fn decode_message(
     decoded_message
 }
 
-fn u8_to_u32(array: &[u8; 4]) -> u32 {
-    (array[0] as u32)
-        + ((array[1] as u32) << 8)
-        + ((array[2] as u32) << 16)
-        + ((array[3] as u32) << 24)
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::encode;
+    use std::fs::read_to_string;
+
+    #[test]
+    fn decode_character_counts_tests() {
+        let code = [97, 1, 98, 2, 99, 3, 100];
+        let mut map = HashMap::new();
+        map.insert('a', 1);
+        map.insert('b', 2);
+        map.insert('c', 3);
+
+        assert_eq!(decode_character_counts(&code), map);
+        assert_eq!(decode_character_counts(&code[..code.len() - 1]), map);
+    }
+
+    #[test]
+    fn sanity_check() {
+        let input = read_to_string("tests/integration_tests/loremipsum.txt").unwrap();
+        let encode_chars = encode::char_occurences_in_string(&input);
+        let encoded_message = encode(&input).unwrap();
+
+        let split_index = encoded_message
+            .iter()
+            .position(|&byte| byte == 0x00)
+            .unwrap();
+        let (character_slice, _) = encoded_message.split_at(split_index);
+
+        dbg!(&character_slice);
+        let decode_chars = decode_character_counts(&character_slice);
+
+        for key in encode_chars.keys() {
+            if encode_chars.get(&key) != decode_chars.get(&key) {
+                println!("discrepency: {:?}", key);
+            }
+        }
+        assert_eq!(encode_chars, decode_chars);
+    }
 }
