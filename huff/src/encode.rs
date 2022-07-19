@@ -33,7 +33,7 @@ pub fn encode(input: &str) -> Result<Vec<u8>> {
     // debug!("encoding: {}", encoding);
 
     // Write to out
-    let mut io_buf = huffman::save_tree(character_counts);
+    let mut io_buf = huffman::save_tree(character_counts)?;
 
     let mut encoding_buf: BitVec<Msb0, u8> = BitVec::new();
     let size: usize = encoding.len();

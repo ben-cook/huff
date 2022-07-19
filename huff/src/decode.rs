@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::io::{self, Read};
 
 use crate::binary_tree::Node;
 use crate::huffman;
@@ -11,16 +12,28 @@ use log::debug;
 /// Decodes (ascii) character counts into a Map<character, count>.
 /// The input is a u8 slice that alternates between the ascii character code
 /// and the count of that character
-fn decode_character_counts(input: &[u8]) -> HashMap<char, i32> {
+fn decode_character_counts(input: &[u8]) -> Result<HashMap<char, i32>> {
     let mut character_counts: HashMap<char, i32> = HashMap::new();
 
-    for chunk in input.chunks_exact(2) {
-        let character = chunk[0].into();
-        let count = chunk[1].into();
+    let mut cursor = io::Cursor::new(input);
+
+    loop {
+        let mut char_buf = [0; 1];
+        if cursor.read_exact(&mut char_buf).is_err() {
+            break;
+        }
+
+        let character = char_buf[0].into();
+
+        let count = match leb128::read::unsigned(&mut cursor) {
+            Ok(value) => value.try_into()?,
+            Err(_) => break,
+        };
+
         character_counts.insert(character, count);
     }
 
-    character_counts
+    Ok(character_counts)
 }
 
 pub fn decode(input: &[u8]) -> Result<String> {
@@ -28,7 +41,7 @@ pub fn decode(input: &[u8]) -> Result<String> {
     let (character_slice, message_slice) = input.split_at(split_index);
     let message_slice = &message_slice[1..];
 
-    let character_counts = decode_character_counts(&character_slice);
+    let character_counts = decode_character_counts(&character_slice)?;
     dbg!(&character_counts);
     debug!("{:?}", character_counts);
 
@@ -101,8 +114,11 @@ mod tests {
         map.insert('b', 2);
         map.insert('c', 3);
 
-        assert_eq!(decode_character_counts(&code), map);
-        assert_eq!(decode_character_counts(&code[..code.len() - 1]), map);
+        assert_eq!(decode_character_counts(&code).unwrap(), map);
+        assert_eq!(
+            decode_character_counts(&code[..code.len() - 1]).unwrap(),
+            map
+        );
     }
 
     #[test]
@@ -118,7 +134,7 @@ mod tests {
         let (character_slice, _) = encoded_message.split_at(split_index);
 
         dbg!(&character_slice);
-        let decode_chars = decode_character_counts(&character_slice);
+        let decode_chars = decode_character_counts(&character_slice).unwrap();
 
         for key in encode_chars.keys() {
             if encode_chars.get(&key) != decode_chars.get(&key) {
