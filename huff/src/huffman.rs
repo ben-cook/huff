@@ -1,7 +1,5 @@
 use std::collections::{BinaryHeap, HashMap};
 
-use anyhow::Result;
-
 use crate::binary_tree::Node;
 
 pub fn generate_tree(map: &HashMap<char, i32>) -> Node<(i32, Option<char>)> {
@@ -36,18 +34,6 @@ pub fn generate_tree(map: &HashMap<char, i32>) -> Node<(i32, Option<char>)> {
     }
 
     heap.pop().expect("Heap is empty after algorithm ran")
-}
-
-pub fn save_tree(char_map: HashMap<char, i32>) -> Result<Vec<u8>> {
-    let mut result: Vec<u8> = Vec::new();
-    for (k, v) in char_map.into_iter() {
-        // u8 restricts this to only ascii
-        // TODO: support utf-8
-        result.push(k as u8);
-
-        leb128::write::unsigned(&mut result, v.try_into()?)?;
-    }
-    Ok(result)
 }
 
 pub fn generate_codes(root: &Node<(i32, Option<char>)>) -> HashMap<char, String> {

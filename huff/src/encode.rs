@@ -5,7 +5,7 @@ use anyhow::Result;
 use bitvec::order::Msb0;
 use bitvec::prelude::BitVec;
 
-pub fn char_occurences_in_string(string: &str) -> HashMap<char, i32> {
+pub(crate) fn char_occurences_in_string(string: &str) -> HashMap<char, i32> {
     let mut character_counts = HashMap::new();
 
     for char in string.chars() {
@@ -13,6 +13,17 @@ pub fn char_occurences_in_string(string: &str) -> HashMap<char, i32> {
     }
 
     character_counts
+}
+
+fn save_tree(char_map: HashMap<char, i32>) -> Result<Vec<u8>> {
+    let mut result: Vec<u8> = Vec::new();
+    for (k, v) in char_map.into_iter() {
+        let mut k_vec = k.to_string().as_bytes().to_vec();
+        result.append(&mut k_vec);
+
+        leb128::write::unsigned(&mut result, v.try_into()?)?;
+    }
+    Ok(result)
 }
 
 pub fn encode(input: &str) -> Result<Vec<u8>> {
@@ -33,7 +44,7 @@ pub fn encode(input: &str) -> Result<Vec<u8>> {
     // debug!("encoding: {}", encoding);
 
     // Write to out
-    let mut io_buf = huffman::save_tree(character_counts)?;
+    let mut io_buf = save_tree(character_counts)?;
 
     let mut encoding_buf: BitVec<Msb0, u8> = BitVec::new();
     let size: usize = encoding.len();

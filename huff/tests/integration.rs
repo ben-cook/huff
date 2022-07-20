@@ -33,3 +33,8 @@ fn navy_file() {
 fn simple_file() {
     evaluate_file(Path::new("tests/integration_tests/simple.txt"));
 }
+
+#[test]
+fn utf8_file() {
+    evaluate_file(Path::new("tests/integration_tests/utf8.txt"));
+}
