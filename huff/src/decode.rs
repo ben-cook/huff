@@ -129,7 +129,7 @@ mod tests {
 
     #[test]
     fn sanity_check() {
-        let input = read_to_string("tests/integration_tests/loremipsum.txt").unwrap();
+        let input = read_to_string("tests/files/loremipsum.txt").unwrap();
         let encode_chars = encode::char_occurences_in_string(&input);
         let encoded_message = encode(&input).unwrap();
 
