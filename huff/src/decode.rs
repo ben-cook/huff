@@ -7,7 +7,6 @@ use crate::huffman;
 use anyhow::Result;
 use bitvec::order::Msb0;
 use bitvec::prelude::BitVec;
-use log::debug;
 
 /// Decodes (ascii) character counts into a Map<character, count>.
 /// The input is a u8 slice that alternates between the ascii character code
@@ -63,26 +62,20 @@ fn decode_message(
 
     for bit in encoded_msg.into_iter() {
         if current_length < encoding_length {
-            if current_length < 20 {
-                // debug!("{:?} {:?}", *current_node, if bit { "1" } else { "0" });
-            }
-
             let next_node = match bit {
                 true => &current_node.right,
                 false => &current_node.left,
             };
 
-            if let Some(node) = next_node {
-                current_node = node;
+            if let Some(next_node) = next_node {
+                current_node = next_node;
             }
 
             if let Some(c) = current_node.value.1 {
                 decoded_message.push(c);
                 current_node = &root;
-                if current_length < 20 {
-                    debug!("found char {}", c);
-                }
             }
+
             current_length += 1;
         }
     }
