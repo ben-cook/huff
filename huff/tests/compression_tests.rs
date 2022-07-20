@@ -12,7 +12,7 @@ fn evaluate_file(path: &Path) {
         path.display(),
         compressed_len,
         raw_len,
-        compressed_len / raw_len 
+        compressed_len / raw_len
     );
 }
 
